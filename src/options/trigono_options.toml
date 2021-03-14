@@ -1,0 +1,8 @@
+#
+# Option specification file for CVC4
+# See src/options/README for a description of this file format
+#
+
+id     = "TRIGONO"
+name   = "Trigono"
+header = "options/trigono_options.h"

@@ -1,0 +1,48 @@
+# kinds                                                               -*- sh -*-
+#
+# For documentation on this file format, please refer to
+# src/theory/builtin/kinds.
+#
+
+theory THEORY_TRIGONO ::CVC4::theory::trigono::TheoryTrigono "theory/trigono/theory_trigono.h"
+typechecker "theory/trigono/theory_trigono_type_rules.h"
+rewriter ::CVC4::theory::trigono::TheoryTrigonoRewriter "theory/trigono/theory_trigono_rewriter.h"
+
+properties stable-infinite
+properties check
+
+# Theory content goes here.
+
+# constants...
+
+# types...
+
+typerule TSINE "SimpleTypeRule<RReal, AReal>"
+typerule TCOSINE "SimpleTypeRule<RReal, AReal>"
+typerule TTANGENT "SimpleTypeRule<RReal, AReal>"
+typerule TCOSECANT "SimpleTypeRule<RReal, AReal>"
+typerule TSECANT "SimpleTypeRule<RReal, AReal>"
+typerule TCOTANGENT "SimpleTypeRule<RReal, AReal>"
+typerule TARCSINE "SimpleTypeRule<RReal, AReal>"
+typerule TARCCOSINE "SimpleTypeRule<RReal, AReal>"
+typerule TARCTANGENT "SimpleTypeRule<RReal, AReal>"
+typerule TARCCOSECANT "SimpleTypeRule<RReal, AReal>"
+typerule TARCSECANT "SimpleTypeRule<RReal, AReal>"
+typerule TARCCOTANGENT "SimpleTypeRule<RReal, AReal>"
+
+# operators...
+
+operator TSINE 1 "sine"
+operator TCOSINE 1 "consine"
+operator TTANGENT 1 "tangent"
+operator TCOSECANT 1 "cosecant"
+operator TSECANT 1 "secant"
+operator TCOTANGENT 1 "cotangent"
+operator TARCSINE 1 "arc sine"
+operator TARCCOSINE 1 "arc consine"
+operator TARCTANGENT 1 "arc tangent"
+operator TARCCOSECANT 1 "arc cosecant"
+operator TARCSECANT 1 "arc secant"
+operator TARCCOTANGENT 1 "arc cotangent"
+
+endtheory
