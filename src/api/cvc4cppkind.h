@@ -634,6 +634,105 @@ enum CVC4_PUBLIC Kind : int32_t
    */
   PI,
 
+  /* Trigono  -------------------------------------------------------------- */
+
+  /**
+  * Sine.
+  * Parameters: 1
+  *   -[1]: Term of sort Integer, Real
+  * Create with:
+  *   mkTerm(Kind kind, Term child)
+  */
+  TRIG_SINE,
+  /**
+   * Cosine.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_COSINE,
+  /**
+   * Tangent.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_TANGENT,
+  /**
+   * Cosecant.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_COSECANT,
+  /**
+   * Secant.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_SECANT,
+  /**
+   * Cotangent.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_COTANGENT,
+  /**
+   * Arc sine.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCSINE,
+  /**
+   * Arc cosine.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCCOSINE,
+  /**
+   * Arc tangent.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCTANGENT,
+  /**
+   * Arc cosecant.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCCOSECANT,
+  /**
+   * Arc secant.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCSECANT,
+  /**
+   * Arc cotangent.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCCOTANGENT,
+
   /* BV -------------------------------------------------------------------- */
 
   /**

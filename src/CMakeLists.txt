@@ -1029,6 +1029,11 @@ libcvc4_add_sources(
   theory/uf/theory_uf_type_rules.h
   theory/valuation.cpp
   theory/valuation.h
+  theory/trigono/theory_trigono.cpp
+  theory/trigono/theory_trigono.h
+  theory/trigono/theory_trigono_rewriter.cpp
+  theory/trigono/theory_trigono_rewriter.h
+  theory/trigono/theory_trigono_type_rules.h
 )
 
 #-----------------------------------------------------------------------------#
@@ -1052,7 +1057,8 @@ set(KINDS_FILES
   ${PROJECT_SOURCE_DIR}/src/theory/sets/kinds
   ${PROJECT_SOURCE_DIR}/src/theory/bags/kinds
   ${PROJECT_SOURCE_DIR}/src/theory/strings/kinds
-  ${PROJECT_SOURCE_DIR}/src/theory/quantifiers/kinds)
+  ${PROJECT_SOURCE_DIR}/src/theory/quantifiers/kinds
+  ${PROJECT_SOURCE_DIR}/src/theory/trigono/kinds)
 
 #-----------------------------------------------------------------------------#
 # Add subdirectories

@@ -71,6 +71,7 @@ set(options_toml_files
   strings_options.toml
   theory_options.toml
   uf_options.toml
+  trigono_options.toml
 )
 
 string(REPLACE "toml" "cpp;" options_gen_cpp_files ${options_toml_files})

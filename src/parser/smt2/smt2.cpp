@@ -269,6 +269,22 @@ void Smt2::addSepOperators() {
   Parser::addOperator(api::SEP_EMP);
 }
 
+void Smt2::addTrigonoOperators()
+{
+  addOperator(api::TRIG_SINE, "t_sin");
+  addOperator(api::TRIG_COSINE, "t_cos");
+  addOperator(api::TRIG_TANGENT, "t_tan");
+  addOperator(api::TRIG_COSECANT, "t_csc");
+  addOperator(api::TRIG_SECANT, "t_sec");
+  addOperator(api::TRIG_COTANGENT, "t_cot");
+  addOperator(api::TRIG_ARCSINE, "t_arcsin");
+  addOperator(api::TRIG_ARCCOSINE, "t_arccos");
+  addOperator(api::TRIG_ARCTANGENT, "t_arctan");
+  addOperator(api::TRIG_ARCCOSECANT, "t_arccsc");
+  addOperator(api::TRIG_ARCSECANT, "t_arcsec");
+  addOperator(api::TRIG_ARCCOTANGENT, "t_arccot");
+}
+
 void Smt2::addCoreSymbols()
 {
   defineType("Bool", d_solver->getBooleanSort(), true, true);
@@ -688,6 +704,11 @@ Command* Smt2::setLogic(std::string name, bool fromCommand)
     defineVar("sep.nil", d_solver->mkSepNil(d_solver->getBooleanSort()));
 
     addSepOperators();
+  }
+
+  if (d_logic.isTheoryEnabled(theory::THEORY_TRIGONO)) {
+    defineVar("trigono.pi", d_solver->mkTerm(api::PI));
+    addTrigonoOperators();
   }
 
   Command* cmd =

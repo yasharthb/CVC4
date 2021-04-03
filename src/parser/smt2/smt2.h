@@ -418,6 +418,8 @@ class Smt2 : public Parser
 
   void addSepOperators();
 
+  void addTrigonoOperators();
+
   InputLanguage getLanguage() const;
 
   /**
