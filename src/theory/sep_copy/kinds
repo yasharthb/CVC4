@@ -1,0 +1,30 @@
+# kinds                                                               -*- sh -*-
+#
+# For documentation on this file format, please refer to
+# src/theory/builtin/kinds.
+#
+
+theory THEORY_SEP_COPY ::CVC4::theory::sep_copy::TheorySep "theory/sep_copy/theory_sep_copy.h"
+typechecker "theory/sep_copy/theory_sep_copy_type_rules.h"
+
+properties polite stable-infinite parametric
+properties check presolve
+
+rewriter ::CVC4::theory::sep_copy::TheorySepRewriter "theory/sep_copy/theory_sep_copy_rewriter.h"
+
+nullaryoperator SEP_COPY_NIL "sep_copyaration nil"
+
+operator SEP_COPY_EMP 2 "sep_copyaration empty heap"
+operator SEP_COPY_PTO 2 "points to relation"
+operator SEP_COPY_STAR 2: "sep_copyaration star"
+operator SEP_COPY_WAND 2 "sep_copyaration magic wand"
+operator SEP_COPY_LABEL 2 "sep_copyaration label (internal use only)"
+
+typerule SEP_COPY_EMP ::CVC4::theory::sep_copy::SepEmpTypeRule
+typerule SEP_COPY_PTO ::CVC4::theory::sep_copy::SepPtoTypeRule
+typerule SEP_COPY_STAR ::CVC4::theory::sep_copy::SepStarTypeRule
+typerule SEP_COPY_WAND ::CVC4::theory::sep_copy::SepWandTypeRule
+typerule SEP_COPY_LABEL ::CVC4::theory::sep_copy::SepLabelTypeRule
+typerule SEP_COPY_NIL ::CVC4::theory::sep_copy::SepNilTypeRule
+
+endtheory
