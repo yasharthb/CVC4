@@ -4,13 +4,15 @@
 #define __CVC4__THEORY__TRIGONO__THEORY_TRIGONO_REWRITER_H
 
 #include "theory/rewriter.h"
+#include "theory/type_enumerator.h"
 
 namespace CVC4 {
 namespace theory {
 namespace trigono {
 
-class TheoryTrigonoRewriter {
-public:
+class TheoryTrigonoRewriter : public TheoryRewriter
+{
+ public:
 
   /**
    * Rewrite a node into the normal form for the theory of trigono.
@@ -33,11 +35,7 @@ public:
    * expression belongs to a different theory, it will be fully
    * rewritten by that theory's rewriter.
    */
-  static RewriteResponse postRewrite(TNode node) {
-
-    // Implement me!
-
-    // This default implementation
+   RewriteResponse postRewrite(TNode node) override {
     return RewriteResponse(REWRITE_DONE, node);
   }
 
@@ -50,7 +48,7 @@ public:
    * nasty expression).  Since it's only an optimization, the
    * implementation here can do nothing.
    */
-  static RewriteResponse preRewrite(TNode node) {
+   RewriteResponse preRewrite(TNode node) override {
     // do nothing
     return RewriteResponse(REWRITE_DONE, node);
   }
@@ -58,9 +56,9 @@ public:
   /**
    * Rewrite an equality, in case special handling is required.
    */
-  static Node rewriteEquality(TNode equality) {
+   Node rewriteEquality(TNode equality) {
     // often this will suffice
-    return postRewrite(equality).node;
+    return postRewrite(equality).d_node;
   }
 
   /**

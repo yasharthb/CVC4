@@ -18,11 +18,12 @@ public:
    * as computed.
    */
   inline static TypeNode computeType(NodeManager* nodeManager, TNode n,
-                                     bool check)
-    throw (TypeCheckingExceptionPrivate) {
-
+                                     bool check){
     // TODO: implement me!
-    Unimplemented();
+    Trace("Trigono-TypeRule-debug")
+        << "Hit computeType " << n << std::endl;
+    return nodeManager->booleanType();
+    //Unimplemented();
 
   }
 
