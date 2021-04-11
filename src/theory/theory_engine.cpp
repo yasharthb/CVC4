@@ -68,6 +68,7 @@ namespace theory {
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_BOOL)      \
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_UF)        \
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_ARITH)     \
+  CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_TRIGONO)   \
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_BV)        \
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_FP)        \
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_ARRAYS)    \
@@ -77,7 +78,6 @@ namespace theory {
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_BAGS)      \
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_STRINGS)   \
   CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_QUANTIFIERS)
-
 }  // namespace theory
 
 /* -------------------------------------------------------------------------- */
@@ -420,7 +420,7 @@ void TheoryEngine::check(Theory::Effort effort) {
       break;                                                        \
     }                                                               \
   }
-
+  //std::cout << "theory id : " << THEORY << std::endl;             \
   // Do the checking
   try {
 
@@ -469,7 +469,7 @@ void TheoryEngine::check(Theory::Effort effort) {
       CVC4_FOR_EACH_THEORY;
 
       Debug("theory") << "TheoryEngine::check(" << effort << "): running propagation after the initial check" << endl;
-
+      Debug("theory") << "TheoryEngine::check(" << effort << "): Sharing Enabled ? "<< d_logicInfo.isSharingEnabled() << endl;
       // We are still satisfiable, propagate as much as possible
       propagate(effort);
 

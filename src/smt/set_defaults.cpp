@@ -180,6 +180,7 @@ void setDefaults(LogicInfo& logic, bool isInternalSubsolver)
       logic = logic.getUnlockedCopy();
       logic.enableTheory(THEORY_ARITH);
       logic.arithNonLinear();
+      logic.enableTheory(THEORY_TRIGONO);
       logic.lock();
     }
   }
@@ -597,7 +598,8 @@ void setDefaults(LogicInfo& logic, bool isInternalSubsolver)
       // FP requires UF since there are multiple operators that are partially
       // defined (see http://smtlib.cs.uiowa.edu/papers/BTRW15.pdf for more
       // details).
-      || logic.isTheoryEnabled(THEORY_FP))
+      || logic.isTheoryEnabled(THEORY_FP)
+      || logic.isTheoryEnabled(THEORY_TRIGONO))
   {
     if (!logic.isTheoryEnabled(THEORY_UF))
     {
@@ -1093,7 +1095,8 @@ void setDefaults(LogicInfo& logic, bool isInternalSubsolver)
        && (logic.isTheoryEnabled(THEORY_ARITH)
            || logic.isTheoryEnabled(THEORY_DATATYPES)
            || logic.isTheoryEnabled(THEORY_BV)
-           || logic.isTheoryEnabled(THEORY_FP)))
+           || logic.isTheoryEnabled(THEORY_FP)
+           || logic.isTheoryEnabled(THEORY_TRIGONO)))
       || options::cegqiAll())
   {
     if (!options::cegqi.wasSetByUser())

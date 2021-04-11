@@ -644,8 +644,23 @@ void Smt2Printer::toStream(std::ostream& out,
   case kind::IS_INTEGER:
   case kind::TO_INTEGER:
   case kind::TO_REAL:
-  case kind::POW: 
-    out << smtKindString(k, d_variant) << " ";
+  case kind::POW:
+
+  // trigono theory
+  case kind::TRIG_SINE:
+  case kind::TRIG_COSINE:
+  case kind::TRIG_TANGENT:
+  case kind::TRIG_COSECANT:
+  case kind::TRIG_SECANT:
+  case kind::TRIG_COTANGENT:
+  case kind::TRIG_ARCSINE:
+  case kind::TRIG_ARCCOSINE:
+  case kind::TRIG_ARCTANGENT:
+  case kind::TRIG_ARCCOSECANT:
+  case kind::TRIG_ARCSECANT:
+  case kind::TRIG_ARCCOTANGENT:
+  case kind::TRIG_PI:
+  out << smtKindString(k, d_variant) << " ";
     break;
   case kind::IAND:
     out << "(_ iand " << n.getOperator().getConst<IntAnd>().d_size << ") ";
@@ -1119,7 +1134,23 @@ std::string Smt2Printer::smtKindString(Kind k, Variant v)
   case kind::TO_REAL: return "to_real";
   case kind::POW: return "^";
 
-    // arrays theory
+
+    //trigono theory
+  case kind::TRIG_SINE: return "t_sin";
+  case kind::TRIG_COSINE: return "t_cos";
+  case kind::TRIG_TANGENT: return "t_tan";
+  case kind::TRIG_COSECANT: return "t_csc";
+  case kind::TRIG_SECANT: return "t_sec";
+  case kind::TRIG_COTANGENT: return "t_cot";
+  case kind::TRIG_ARCSINE: return "t_arcsin";
+  case kind::TRIG_ARCCOSINE: return "t_arccos";
+  case kind::TRIG_ARCTANGENT: return "t_arctan";
+  case kind::TRIG_ARCCOSECANT: return "t_arccsc";
+  case kind::TRIG_ARCSECANT: return "t_arcsec";
+  case kind::TRIG_ARCCOTANGENT: return "t_arccot";
+  case kind::TRIG_PI: return "t.pi";
+
+      // arrays theory
   case kind::SELECT: return "select";
   case kind::STORE: return "store";
   case kind::ARRAY_TYPE: return "Array";

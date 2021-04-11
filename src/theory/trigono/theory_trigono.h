@@ -62,6 +62,17 @@ class TheoryTrigono : public Theory {
   /** get the official theory rewriter of this theory */
   TheoryRewriter* getTheoryRewriter() override;
 
+ /**
+ * Returns true if this theory needs an equality engine, which is assigned
+ * to it (d_equalityEngine) by the equality engine manager during
+ * TheoryEngine::finishInit, prior to calling finishInit for this theory.
+ * If this method returns true, it stores instructions for the notifications
+ * this Theory wishes to receive from its equality engine.
+ */
+ // bool needsEqualityEngine(EeSetupInfo& esi) override;
+  /** finish initialization */
+  void finishInit() override;
+
   std::string identify() const override { return std::string("THEORY_TRIGONO"); }
 
 

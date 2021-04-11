@@ -46,7 +46,29 @@ TheoryTrigono::TheoryTrigono(context::Context* c,
 
 TheoryRewriter* TheoryTrigono::getTheoryRewriter() { return &d_rewriter; }
 
+//bool TheoryTrigono::needsEqualityEngine(EeSetupInfo& esi)
+//{
+//  return d_internal->needsEqualityEngine(esi);
+//}
+
+void TheoryTrigono::finishInit()
+{
+  if (getLogicInfo().isTheoryEnabled(THEORY_ARITH)
+      && getLogicInfo().areTranscendentalsUsed())
+  {
+    d_valuation.setUnevaluatedKind(kind::TRIG_SINE);
+    d_valuation.setUnevaluatedKind(kind::TRIG_COSINE);
+    d_valuation.setUnevaluatedKind(kind::TRIG_TANGENT);
+    d_valuation.setUnevaluatedKind(kind::TRIG_COSECANT);
+    d_valuation.setUnevaluatedKind(kind::TRIG_COTANGENT);
+    d_valuation.setUnevaluatedKind(kind::TRIG_SECANT);
+
+    d_valuation.setUnevaluatedKind(kind::TRIG_PI);
+  }
+}
+
 void TheoryTrigono::check(Effort level) {
+  cout << "TheoryTrigono::check(): processing " << level << std::endl;
   if (done() && !fullEffort(level)) {
     return;
   }

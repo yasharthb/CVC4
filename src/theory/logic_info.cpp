@@ -511,6 +511,7 @@ void LogicInfo::setLogicString(std::string logicString)
         if (*p == 'T')
         {
           arithTranscendentals();
+          enableTheory(THEORY_TRIGONO);
           p += 1;
         }
       } else if(!strncmp(p, "NIRA", 4)) {
@@ -521,6 +522,7 @@ void LogicInfo::setLogicString(std::string logicString)
         if (*p == 'T')
         {
           arithTranscendentals();
+          enableTheory(THEORY_TRIGONO);
           p += 1;
         }
       }
