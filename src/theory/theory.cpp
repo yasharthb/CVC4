@@ -149,6 +149,7 @@ void Theory::finishInitStandalone()
 TheoryId Theory::theoryOf(options::TheoryOfMode mode, TNode node)
 {
   TheoryId tid = THEORY_BUILTIN;
+  cout << "The theory mode is : "<< mode << endl;
   switch(mode) {
     case options::TheoryOfMode::THEORY_OF_TYPE_BASED:
       // Constants, variables, 0-ary constructors
@@ -156,16 +157,19 @@ TheoryId Theory::theoryOf(options::TheoryOfMode mode, TNode node)
       {
         if (node.getKind() == kind::BOOLEAN_TERM_VARIABLE)
         {
+          cout << "Allotted Theory is : THEORY_UF" << endl;
           tid = THEORY_UF;
         }
         else
         {
+          cout << "Allotted Theory is : " << Theory::theoryOf(node.getType()) << endl;
           tid = Theory::theoryOf(node.getType());
         }
       }
       else if (node.getKind() == kind::EQUAL)
       {
         // Equality is owned by the theory that owns the domain
+        cout << "Equality is owned by the theory that owns the domain : " <<Theory::theoryOf(node[0].getType()) << endl;
         tid = Theory::theoryOf(node[0].getType());
       }
       else
@@ -173,6 +177,7 @@ TheoryId Theory::theoryOf(options::TheoryOfMode mode, TNode node)
         // Regular nodes are owned by the kind. Notice that constants are a
         // special case here, where the theory of the kind of a constant
         // always coincides with the type of that constant.
+        cout << "Regular nodes are owned by the kind : "<< kindToTheoryId(node.getKind())<< endl;
         tid = kindToTheoryId(node.getKind());
       }
       break;
@@ -465,6 +470,7 @@ EqualityStatus Theory::getEqualityStatus(TNode a, TNode b)
 
 void Theory::check(Effort level)
 {
+  printFacts(std::cout);
   // see if we are already done (as an optimization)
   if (done() && level < EFFORT_FULL)
   {

@@ -72,7 +72,7 @@ class TheoryTrigono : public Theory {
  // bool needsEqualityEngine(EeSetupInfo& esi) override;
   /** finish initialization */
   void finishInit() override;
-
+  bool needsCheckLastEffort() override;
   std::string identify() const override { return std::string("THEORY_TRIGONO"); }
 
 

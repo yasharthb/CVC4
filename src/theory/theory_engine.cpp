@@ -414,13 +414,15 @@ void TheoryEngine::check(Theory::Effort effort) {
       && d_logicInfo.isTheoryEnabled(THEORY))                       \
   {                                                                 \
     theoryOf(THEORY)->check(effort);                                \
-    if (d_inConflict)                                               \
+    d_theoryTable[THEORY]->printFacts(d_outMgr.getDumpOut());        \
+    std::cout << "theory id : " << THEORY << std::endl;             \
+  if (d_inConflict)                                                 \
     {                                                               \
       Debug("conflict") << THEORY << " in conflict. " << std::endl; \
       break;                                                        \
     }                                                               \
   }
-  //std::cout << "theory id : " << THEORY << std::endl;             \
+  //
   // Do the checking
   try {
 
@@ -488,9 +490,9 @@ void TheoryEngine::check(Theory::Effort effort) {
         }
       }
     }
-
     // Must consult quantifiers theory for last call to ensure sat, or otherwise add a lemma
     if( Theory::fullEffort(effort) && ! d_inConflict && ! needCheck() ) {
+      Debug("theory") << "TheoryEngine::check(" << effort << "): consulting quantifiers theory for last call" << endl;
       Trace("theory::assertions-model") << endl;
       if (Trace.isOn("theory::assertions-model")) {
         printAssertions("theory::assertions-model");
@@ -503,10 +505,12 @@ void TheoryEngine::check(Theory::Effort effort) {
           Theory* theory = d_theoryTable[theoryId];
           if (theory && d_logicInfo.isTheoryEnabled(theoryId)) {
             if( theory->needsCheckLastEffort() ){
+              Debug("theory") << "TheoryEngine::check(" << effort << "): "<< theoryId << " needsCheckLast Effort" << endl;
               if (!d_tc->buildModel())
               {
                 break;
               }
+              Debug("theory") << "TheoryEngine::check(" << effort << "): "<< theoryId << " Calling check" << endl;
               theory->check(Theory::EFFORT_LAST_CALL);
             }
           }

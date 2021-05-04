@@ -53,6 +53,7 @@ TheoryRewriter* TheoryTrigono::getTheoryRewriter() { return &d_rewriter; }
 
 void TheoryTrigono::finishInit()
 {
+  //Debug("theory") << "TheoryTrigono::finishInit(): processing" << std::endl;
   if (getLogicInfo().isTheoryEnabled(THEORY_ARITH)
       && getLogicInfo().areTranscendentalsUsed())
   {
@@ -68,7 +69,7 @@ void TheoryTrigono::finishInit()
 }
 
 void TheoryTrigono::check(Effort level) {
-  cout << "TheoryTrigono::check(): processing " << level << std::endl;
+  Debug("theory") << "TheoryTrigono::check(): processing " << level << std::endl;
   if (done() && !fullEffort(level)) {
     return;
   }
@@ -94,6 +95,15 @@ void TheoryTrigono::check(Effort level) {
   }
 
 }
+
+bool TheoryTrigono::needsCheckLastEffort() {
+//  if (d_nonlinearExtension != nullptr)
+//  {
+//    return d_nonlinearExtension->needsCheckLastEffort();
+//  }
+  return true;
+}
+
 /* TheoryTrigono::check() */
 
 }/* CVC4::theory::trigono namespace */
