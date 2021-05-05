@@ -13,7 +13,10 @@
 #include "theory/trigono/theory_trigono_rewriter.h"
 #include "theory/inference_manager_buffered.h"
 #include "util/statistics_registry.h"
-
+#include "theory/arrays/inference_manager.h"
+#include "theory/arrays/proof_checker.h"
+#include "theory/uf/equality_engine.h"
+#include "theory/uf/proof_equality_engine.h"
 
 namespace CVC4 {
 namespace theory {
@@ -46,6 +49,9 @@ class TheoryTrigono : public Theory {
   TheoryState d_state;
   /** A buffered inference manager */
 
+  /** The notify class for d_equalityEngine */
+//  NotifyClass d_notify;
+
   /** A buffered inference manager */
   InferenceManagerBuffered d_im;
  public:
@@ -69,12 +75,11 @@ class TheoryTrigono : public Theory {
  * If this method returns true, it stores instructions for the notifications
  * this Theory wishes to receive from its equality engine.
  */
- // bool needsEqualityEngine(EeSetupInfo& esi) override;
+  bool needsEqualityEngine(EeSetupInfo& esi) override;
   /** finish initialization */
   void finishInit() override;
   bool needsCheckLastEffort() override;
   std::string identify() const override { return std::string("THEORY_TRIGONO"); }
-
 
 };/* class TheoryTrigono */
 

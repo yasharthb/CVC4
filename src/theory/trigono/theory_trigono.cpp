@@ -33,6 +33,7 @@ TheoryTrigono::TheoryTrigono(context::Context* c,
     : Theory(THEORY_TRIGONO, c, u, out, valuation, logicInfo, pnm),
     d_lemmas_produced_c(u),
     d_bounds_init(false),
+//    d_notify(*this),
     d_state(c, u, valuation),
     d_im(*this, d_state, nullptr, "theory::trigono")
 {
@@ -46,10 +47,12 @@ TheoryTrigono::TheoryTrigono(context::Context* c,
 
 TheoryRewriter* TheoryTrigono::getTheoryRewriter() { return &d_rewriter; }
 
-//bool TheoryTrigono::needsEqualityEngine(EeSetupInfo& esi)
-//{
-//  return d_internal->needsEqualityEngine(esi);
-//}
+bool TheoryTrigono::needsEqualityEngine(EeSetupInfo& esi)
+{
+//  esi.d_notify = &d_notify;
+  esi.d_name = "theory::trigono::ee";
+  return true;
+}
 
 void TheoryTrigono::finishInit()
 {
