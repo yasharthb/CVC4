@@ -45,19 +45,17 @@ namespace theory {
 /** Default value for the uninterpreted sorts is the UF theory */
 TheoryId Theory::s_uninterpretedSortOwner = THEORY_UF;
 
-std::ostream& operator<<(std::ostream& os, Theory::Effort level){
-  switch(level){
-  case Theory::EFFORT_STANDARD:
-    os << "EFFORT_STANDARD"; break;
-  case Theory::EFFORT_FULL:
-    os << "EFFORT_FULL"; break;
-  case Theory::EFFORT_LAST_CALL:
-    os << "EFFORT_LAST_CALL"; break;
-  default:
-      Unreachable();
+std::ostream& operator<<(std::ostream& os, Theory::Effort level)
+{
+  switch (level)
+  {
+    case Theory::EFFORT_STANDARD: os << "EFFORT_STANDARD"; break;
+    case Theory::EFFORT_FULL: os << "EFFORT_FULL"; break;
+    case Theory::EFFORT_LAST_CALL: os << "EFFORT_LAST_CALL"; break;
+    default: Unreachable();
   }
   return os;
-}/* ostream& operator<<(ostream&, Theory::Effort) */
+} /* ostream& operator<<(ostream&, Theory::Effort) */
 
 Theory::Theory(TheoryId id,
                context::Context* satContext,
@@ -94,7 +92,8 @@ Theory::Theory(TheoryId id,
   smtStatisticsRegistry()->registerStat(&d_computeCareGraphTime);
 }
 
-Theory::~Theory() {
+Theory::~Theory()
+{
   smtStatisticsRegistry()->unregisterStat(&d_checkTime);
   smtStatisticsRegistry()->unregisterStat(&d_computeCareGraphTime);
 }
@@ -149,27 +148,30 @@ void Theory::finishInitStandalone()
 TheoryId Theory::theoryOf(options::TheoryOfMode mode, TNode node)
 {
   TheoryId tid = THEORY_BUILTIN;
-  cout << "The theory mode is : "<< mode << endl;
-  switch(mode) {
+  // cout << "The theory mode is : " << mode << endl;
+  switch (mode)
+  {
     case options::TheoryOfMode::THEORY_OF_TYPE_BASED:
       // Constants, variables, 0-ary constructors
       if (node.isVar())
       {
         if (node.getKind() == kind::BOOLEAN_TERM_VARIABLE)
         {
-          cout << "Allotted Theory is : THEORY_UF" << endl;
+          // cout << "Allotted Theory is : THEORY_UF" << endl;
           tid = THEORY_UF;
         }
         else
         {
-          cout << "Allotted Theory is : " << Theory::theoryOf(node.getType()) << endl;
+          // cout << "Allotted Theory is : " << Theory::theoryOf(node.getType())
+          //      << endl;
           tid = Theory::theoryOf(node.getType());
         }
       }
       else if (node.getKind() == kind::EQUAL)
       {
         // Equality is owned by the theory that owns the domain
-        cout << "Equality is owned by the theory that owns the domain : " <<Theory::theoryOf(node[0].getType()) << endl;
+        // cout << "Equality is owned by the theory that owns the domain : "
+        //      << Theory::theoryOf(node[0].getType()) << endl;
         tid = Theory::theoryOf(node[0].getType());
       }
       else
@@ -177,7 +179,8 @@ TheoryId Theory::theoryOf(options::TheoryOfMode mode, TNode node)
         // Regular nodes are owned by the kind. Notice that constants are a
         // special case here, where the theory of the kind of a constant
         // always coincides with the type of that constant.
-        cout << "Regular nodes are owned by the kind : "<< kindToTheoryId(node.getKind())<< endl;
+        // cout << "Regular nodes are owned by the kind : "
+        //      << kindToTheoryId(node.getKind()) << endl;
         tid = kindToTheoryId(node.getKind());
       }
       break;
@@ -267,11 +270,11 @@ TheoryId Theory::theoryOf(options::TheoryOfMode mode, TNode node)
         // special case.
         tid = kindToTheoryId(node.getKind());
       }
-    break;
-  default:
-    Unreachable();
+      break;
+    default: Unreachable();
   }
-  Trace("theory::internal") << "theoryOf(" << mode << ", " << node << ") -> " << tid << std::endl;
+  Trace("theory::internal")
+      << "theoryOf(" << mode << ", " << node << ") -> " << tid << std::endl;
   return tid;
 }
 
@@ -280,41 +283,49 @@ void Theory::notifySharedTerm(TNode n)
   // do nothing
 }
 
-void Theory::computeCareGraph() {
+void Theory::computeCareGraph()
+{
   Debug("sharing") << "Theory::computeCareGraph<" << getId() << ">()" << endl;
-  for (unsigned i = 0; i < d_sharedTerms.size(); ++ i) {
+  for (unsigned i = 0; i < d_sharedTerms.size(); ++i)
+  {
     TNode a = d_sharedTerms[i];
     TypeNode aType = a.getType();
-    for (unsigned j = i + 1; j < d_sharedTerms.size(); ++ j) {
+    for (unsigned j = i + 1; j < d_sharedTerms.size(); ++j)
+    {
       TNode b = d_sharedTerms[j];
-      if (b.getType() != aType) {
+      if (b.getType() != aType)
+      {
         // We don't care about the terms of different types
         continue;
       }
-      switch (d_valuation.getEqualityStatus(a, b)) {
-      case EQUALITY_TRUE_AND_PROPAGATED:
-      case EQUALITY_FALSE_AND_PROPAGATED:
-        // If we know about it, we should have propagated it, so we can skip
-        break;
-      default:
-        // Let's split on it
-        addCarePair(a, b);
-        break;
+      switch (d_valuation.getEqualityStatus(a, b))
+      {
+        case EQUALITY_TRUE_AND_PROPAGATED:
+        case EQUALITY_FALSE_AND_PROPAGATED:
+          // If we know about it, we should have propagated it, so we can skip
+          break;
+        default:
+          // Let's split on it
+          addCarePair(a, b);
+          break;
       }
     }
   }
 }
 
-void Theory::printFacts(std::ostream& os) const {
+void Theory::printFacts(std::ostream& os) const
+{
   unsigned i, n = d_facts.size();
-  for(i = 0; i < n; i++){
+  for (i = 0; i < n; i++)
+  {
     const Assertion& a_i = d_facts[i];
-    Node assertion  = a_i;
+    Node assertion = a_i;
     os << d_id << '[' << i << ']' << " " << assertion << endl;
   }
 }
 
-void Theory::debugPrintFacts() const{
+void Theory::debugPrintFacts() const
+{
   DebugChannel.getStream() << "Theory::debugPrintFacts()" << endl;
   printFacts(DebugChannel.getStream());
 }
@@ -346,11 +357,16 @@ bool Theory::isLegalElimination(TNode x, TNode val)
   return tm->isLegalElimination(x, val);
 }
 
-std::unordered_set<TNode, TNodeHashFunction> Theory::currentlySharedTerms() const{
+std::unordered_set<TNode, TNodeHashFunction> Theory::currentlySharedTerms()
+    const
+{
   std::unordered_set<TNode, TNodeHashFunction> currentlyShared;
   for (shared_terms_iterator i = shared_terms_begin(),
-           i_end = shared_terms_end(); i != i_end; ++i) {
-    currentlyShared.insert (*i);
+                             i_end = shared_terms_end();
+       i != i_end;
+       ++i)
+  {
+    currentlyShared.insert(*i);
   }
   return currentlyShared;
 }
@@ -418,13 +434,16 @@ std::pair<bool, Node> Theory::entailmentCheck(TNode lit)
   return make_pair(false, Node::null());
 }
 
-void Theory::addCarePair(TNode t1, TNode t2) {
-  if (d_careGraph) {
+void Theory::addCarePair(TNode t1, TNode t2)
+{
+  if (d_careGraph)
+  {
     d_careGraph->insert(CarePair(t1, t2, d_id));
   }
 }
 
-void Theory::getCareGraph(CareGraph* careGraph) {
+void Theory::getCareGraph(CareGraph* careGraph)
+{
   Assert(careGraph != NULL);
 
   Trace("sharing") << "Theory<" << getId() << ">::getCareGraph()" << std::endl;
@@ -434,10 +453,7 @@ void Theory::getCareGraph(CareGraph* careGraph) {
   d_careGraph = NULL;
 }
 
-bool Theory::proofsEnabled() const
-{
-  return d_pnm != nullptr;
-}
+bool Theory::proofsEnabled() const { return d_pnm != nullptr; }
 
 EqualityStatus Theory::getEqualityStatus(TNode a, TNode b)
 {
@@ -446,7 +462,8 @@ EqualityStatus Theory::getEqualityStatus(TNode a, TNode b)
   {
     return EQUALITY_UNKNOWN;
   }
-  Trace("sharing") << "Theory<" << getId() << ">::getEqualityStatus(" << a << ", " << b << ")" << std::endl;
+  Trace("sharing") << "Theory<" << getId() << ">::getEqualityStatus(" << a
+                   << ", " << b << ")" << std::endl;
   Assert(d_equalityEngine->hasTerm(a) && d_equalityEngine->hasTerm(b));
 
   // Check for equality (simplest)
@@ -470,13 +487,19 @@ EqualityStatus Theory::getEqualityStatus(TNode a, TNode b)
 
 void Theory::check(Effort level)
 {
-  printFacts(std::cout);
+  std::cout << "** THEORY ID : " << getId() << std::endl;
+  if (d_facts.size())
+    printFacts(std::cout);
+  else
+    std::cout << "<empty>" << std::endl;
+  std::cout << std::endl;
+
   // see if we are already done (as an optimization)
   if (done() && level < EFFORT_FULL)
   {
     return;
   }
-  Assert(d_theoryState!=nullptr);
+  Assert(d_theoryState != nullptr);
   // standard calls for resource, stats
   d_out->spendResource(ResourceManager::Resource::TheoryCheckStep);
   TimerStat::CodeTimer checkTimer(d_checkTime);
@@ -569,5 +592,5 @@ eq::EqualityEngine* Theory::getEqualityEngine()
   return d_equalityEngine;
 }
 
-}/* CVC4::theory namespace */
-}/* CVC4 namespace */
+}  // namespace theory
+}  // namespace CVC4

@@ -12,8 +12,8 @@
 #include "theory/quantifiers/term_util.h"
 #include "theory/quantifiers_engine.h"
 #include "theory/rewriter.h"
-#include "theory/trigono/theory_trigono_rewriter.h"
 #include "theory/theory_model.h"
+#include "theory/trigono/theory_trigono_rewriter.h"
 #include "theory/valuation.h"
 
 using namespace std;
@@ -25,17 +25,17 @@ namespace trigono {
 
 /** Constructs a new instance of TheoryTrigono w.r.t. the provided contexts. */
 TheoryTrigono::TheoryTrigono(context::Context* c,
-                           context::UserContext* u,
-                           OutputChannel& out,
-                           Valuation valuation,
-                           const LogicInfo& logicInfo,
-                           ProofNodeManager* pnm)
+                             context::UserContext* u,
+                             OutputChannel& out,
+                             Valuation valuation,
+                             const LogicInfo& logicInfo,
+                             ProofNodeManager* pnm)
     : Theory(THEORY_TRIGONO, c, u, out, valuation, logicInfo, pnm),
-    d_lemmas_produced_c(u),
-    d_bounds_init(false),
-//    d_notify(*this),
-    d_state(c, u, valuation),
-    d_im(*this, d_state, nullptr, "theory::trigono")
+      d_lemmas_produced_c(u),
+      d_bounds_init(false),
+      //    d_notify(*this),
+      d_state(c, u, valuation),
+      d_im(*this, d_state, nullptr, "theory::trigono")
 {
   d_true = NodeManager::currentNM()->mkConst<bool>(true);
   d_false = NodeManager::currentNM()->mkConst<bool>(false);
@@ -49,14 +49,14 @@ TheoryRewriter* TheoryTrigono::getTheoryRewriter() { return &d_rewriter; }
 
 bool TheoryTrigono::needsEqualityEngine(EeSetupInfo& esi)
 {
-//  esi.d_notify = &d_notify;
+  //  esi.d_notify = &d_notify;
   esi.d_name = "theory::trigono::ee";
   return true;
 }
 
 void TheoryTrigono::finishInit()
 {
-  //Debug("theory") << "TheoryTrigono::finishInit(): processing" << std::endl;
+  // Debug("theory") << "TheoryTrigono::finishInit(): processing" << std::endl;
   if (getLogicInfo().isTheoryEnabled(THEORY_ARITH)
       && getLogicInfo().areTranscendentalsUsed())
   {
@@ -71,44 +71,49 @@ void TheoryTrigono::finishInit()
   }
 }
 
-void TheoryTrigono::check(Effort level) {
-  Debug("theory") << "TheoryTrigono::check(): processing " << level << std::endl;
-  if (done() && !fullEffort(level)) {
+void TheoryTrigono::check(Effort level)
+{
+  Debug("theory") << "TheoryTrigono::check(): processing " << level
+                  << std::endl;
+  if (done() && !fullEffort(level))
+  {
     return;
   }
 
   TimerStat::CodeTimer checkTimer(d_checkTime);
 
-  while(!done()) {
+  while (!done())
+  {
     // Get all the assertions
     Assertion assertion = get();
     TNode fact = assertion.d_assertion;
 
-    Debug("trigono") << "TheoryTrigono::check(): processing " << fact << std::endl;
+    Debug("trigono") << "TheoryTrigono::check(): processing " << fact
+                     << std::endl;
 
     // Do the work
-    switch(fact.getKind()) {
+    switch (fact.getKind())
+    {
+        /* cases for all the theory's kinds go here... */
 
-    /* cases for all the theory's kinds go here... */
-
-    default:
-      Trace("Trigono-debug")
-          << "Unhandled Kind" << fact.getKind() << std::endl;
+      default:
+        Trace("Trigono-debug")
+            << "Unhandled Kind" << fact.getKind() << std::endl;
     }
   }
-
 }
 
-bool TheoryTrigono::needsCheckLastEffort() {
-//  if (d_nonlinearExtension != nullptr)
-//  {
-//    return d_nonlinearExtension->needsCheckLastEffort();
-//  }
+bool TheoryTrigono::needsCheckLastEffort()
+{
+  //  if (d_nonlinearExtension != nullptr)
+  //  {
+  //    return d_nonlinearExtension->needsCheckLastEffort();
+  //  }
   return true;
 }
 
 /* TheoryTrigono::check() */
 
-}/* CVC4::theory::trigono namespace */
-}/* CVC4::theory namespace */
-}/* CVC4 namespace */
+}  // namespace trigono
+}  // namespace theory
+}  // namespace CVC4
