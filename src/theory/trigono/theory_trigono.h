@@ -81,6 +81,8 @@ class TheoryTrigono : public Theory
   /** finish initialization */
   void finishInit() override;
   bool needsCheckLastEffort() override;
+  void notifyFact(TNode atom, bool pol, TNode fact, bool isInternal) override;
+  bool preNotifyFact(TNode atom, bool polarity, TNode fact, bool isPrereg, bool isInternal) override;
   std::string identify() const override
   {
     return std::string("THEORY_TRIGONO");

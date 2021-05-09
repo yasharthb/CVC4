@@ -487,12 +487,12 @@ EqualityStatus Theory::getEqualityStatus(TNode a, TNode b)
 
 void Theory::check(Effort level)
 {
-  std::cout << "** THEORY ID : " << getId() << std::endl;
-  if (d_facts.size())
-    printFacts(std::cout);
-  else
-    std::cout << "<empty>" << std::endl;
-  std::cout << std::endl;
+//  std::cout << "** THEORY ID : " << getId() << std::endl;
+//  if (d_facts.size())
+//    printFacts(std::cout);
+//  else
+//    std::cout << "<empty>" << std::endl;
+//  std::cout << std::endl;
 
   // see if we are already done (as an optimization)
   if (done() && level < EFFORT_FULL)
@@ -537,16 +537,24 @@ void Theory::check(Effort level)
     // assert to the equality engine
     if (atom.getKind() == kind::EQUAL)
     {
+      Trace("theory-check") << "Asserted Equality" << d_id <<std::endl;
       d_equalityEngine->assertEquality(atom, polarity, fact);
     }
     else
     {
+      Trace("theory-check") << "Asserted Predicate" << d_id <<std::endl;
       d_equalityEngine->assertPredicate(atom, polarity, fact);
     }
     Trace("theory-check") << "Theory::notifyFact " << fact << " " << d_id
                           << std::endl;
     // notify the theory of the new fact, which is not internal
     notifyFact(atom, polarity, fact, false);
+
+//    if (d_id == TheoryId::THEORY_TRIGONO && level == EFFORT_FULL)
+//    {
+//      Trace("theory-check") << "Raising a conflict " << d_id <<std::endl;
+//      d_inferManager->conflict(*(d_facts.begin()), InferenceId::TRIGONO_OUT_OF_BOUND);
+//    }
   }
   Trace("theory-check") << "Theory::postCheck " << d_id << std::endl;
   // post-check at level
@@ -584,6 +592,7 @@ void Theory::addSharedTerm(TNode n)
   {
     d_equalityEngine->addTriggerTerm(n, d_id);
   }
+
 }
 
 eq::EqualityEngine* Theory::getEqualityEngine()

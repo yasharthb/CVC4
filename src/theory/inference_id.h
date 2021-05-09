@@ -101,6 +101,12 @@ enum class InferenceId
   ARITH_NL_ICP_PROPAGATION,
   // ---------------------------------- end arith theory
 
+  // ---------------------------------- trigono theory
+  TRIGONO_EQ,
+  TROGONO_NOT_EQ,
+  TRIGONO_OUT_OF_BOUND,
+  // ---------------------------------- end trigono theory
+
   // ---------------------------------- arrays theory
   ARRAYS_EXT,
   ARRAYS_READ_OVER_WRITE,

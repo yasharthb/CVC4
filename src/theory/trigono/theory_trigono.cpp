@@ -15,6 +15,7 @@
 #include "theory/theory_model.h"
 #include "theory/trigono/theory_trigono_rewriter.h"
 #include "theory/valuation.h"
+#include "math.h"
 
 using namespace std;
 using namespace CVC4::kind;
@@ -49,28 +50,34 @@ TheoryRewriter* TheoryTrigono::getTheoryRewriter() { return &d_rewriter; }
 
 bool TheoryTrigono::needsEqualityEngine(EeSetupInfo& esi)
 {
-  //  esi.d_notify = &d_notify;
+  // esi.d_notify = &d_inferManager;
   esi.d_name = "theory::trigono::ee";
   return true;
 }
 
 void TheoryTrigono::finishInit()
 {
-  // Debug("theory") << "TheoryTrigono::finishInit(): processing" << std::endl;
+  Debug("theory") << "TheoryTrigono::finishInit(): processing" << std::endl;
   if (getLogicInfo().isTheoryEnabled(THEORY_ARITH)
       && getLogicInfo().areTranscendentalsUsed())
   {
-    d_valuation.setUnevaluatedKind(kind::TRIG_SINE);
-    d_valuation.setUnevaluatedKind(kind::TRIG_COSINE);
-    d_valuation.setUnevaluatedKind(kind::TRIG_TANGENT);
-    d_valuation.setUnevaluatedKind(kind::TRIG_COSECANT);
-    d_valuation.setUnevaluatedKind(kind::TRIG_COTANGENT);
-    d_valuation.setUnevaluatedKind(kind::TRIG_SECANT);
+    d_valuation.setUnevaluatedKind(TRIG_SINE);
+    d_valuation.setUnevaluatedKind(TRIG_COSINE);
+    d_valuation.setUnevaluatedKind(TRIG_TANGENT);
+    d_valuation.setUnevaluatedKind(TRIG_COSECANT);
+    d_valuation.setUnevaluatedKind(TRIG_COTANGENT);
+    d_valuation.setUnevaluatedKind(TRIG_SECANT);
 
-    d_valuation.setUnevaluatedKind(kind::TRIG_PI);
+    d_valuation.setUnevaluatedKind(TRIG_PI);
+
+
+    d_equalityEngine->addFunctionKind(TRIG_SINE);
+    d_equalityEngine->addFunctionKind(TRIG_COSINE);
+
   }
 }
 
+/*
 void TheoryTrigono::check(Effort level)
 {
   Debug("theory") << "TheoryTrigono::check(): processing " << level
@@ -94,7 +101,7 @@ void TheoryTrigono::check(Effort level)
     // Do the work
     switch (fact.getKind())
     {
-        /* cases for all the theory's kinds go here... */
+        // cases for all the theory's kinds go here...
 
       default:
         Trace("Trigono-debug")
@@ -102,6 +109,7 @@ void TheoryTrigono::check(Effort level)
     }
   }
 }
+*/
 
 bool TheoryTrigono::needsCheckLastEffort()
 {
@@ -111,6 +119,77 @@ bool TheoryTrigono::needsCheckLastEffort()
   //  }
   return true;
 }
+
+bool TheoryTrigono::preNotifyFact(
+    TNode atom, bool polarity, TNode fact, bool isPrereg, bool isInternal)
+{
+  Trace("theory-check") << "Inside preNotifyFact" <<std::endl;
+  if (!isInternal && !isPrereg)
+  {
+    if (atom.getKind() == kind::EQUAL)
+    {
+      if (!d_equalityEngine->hasTerm(atom[0]))
+      {
+        Assert(atom[0].isConst());
+        d_equalityEngine->addTerm(atom[0]);
+      }
+      if (!d_equalityEngine->hasTerm(atom[1]))
+      {
+        Assert(atom[1].isConst());
+        d_equalityEngine->addTerm(atom[1]);
+      }
+    }
+  }
+  return false;
+}
+
+void TheoryTrigono::notifyFact(TNode atom, bool pol, TNode fact, bool isInternal)
+{
+  if (!d_state.isInConflict() && atom.getKind() == kind::EQUAL)
+  {
+    Trace("theory-check") << "Inside NotifyFact " <<std::endl;
+    NodeManager* nm = NodeManager::currentNM();
+
+    switch(atom[1].getKind()){
+      case kind::TRIG_SINE:
+        Trace("theory-check") << "Tnode atom = " << atom.getKind() << atom << atom[0].getKind() << atom[0].getConst<Rational>() << atom[1].getKind() << atom[1] <<std::endl;
+        if(atom[0].getConst<Rational>().getDouble() <= 1 && atom[0].getConst<Rational>().getDouble() >= -1)
+        {
+         // TNode v = nm->mkNode(EQUAL, atom[1], atom[0]);
+         // d_inferManager->assertInternalFact(v,pol,InferenceId::TRIGONO_EQ,v);
+          Trace("theory-check")
+              << asin(atom[0].getConst<Rational>().getDouble()) << std::endl;
+        }
+        else
+        {
+          Trace("theory-check") << "Raising a conflict " << theoryOf(atom) << std::endl;
+          d_inferManager->conflict(atom,
+                                   InferenceId::TRIGONO_OUT_OF_BOUND);
+        }
+        break;
+      case kind::TRIG_COSINE:
+        Trace("theory-check") << "Tnode atom = " << atom.getKind() << atom << atom[0].getKind() << atom[0].getConst<Rational>() << atom[1].getKind() << atom[1] <<std::endl;
+        if(atom[0].getConst<Rational>().getDouble() <= 1 && atom[0].getConst<Rational>().getDouble() >= -1)
+        {
+         // TNode v = nm->mkNode(EQUAL, atom[1], atom[0]);
+         // d_inferManager->assertInternalFact(v,pol,InferenceId::TRIGONO_EQ,v);
+          Trace("theory-check")
+             << acos(atom[0].getConst<Rational>().getDouble()) << std::endl;
+        }
+        else
+        {
+          Trace("theory-check") << "Raising a conflict " << theoryOf(atom) << std::endl;
+          d_inferManager->conflict(atom,
+                                   InferenceId::TRIGONO_OUT_OF_BOUND);
+        }
+        break;
+      default:
+        Trace("theory-check") << "Tnode atom = " << atom.getKind() << atom << atom[0].getKind() << atom[0] << atom[1].getKind() << atom[1] <<std::endl;;
+    }
+  }
+}
+
+
 
 /* TheoryTrigono::check() */
 
