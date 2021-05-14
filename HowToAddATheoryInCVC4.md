@@ -3,6 +3,12 @@ While attempting to add a theory for trigonometric functions into CVC4, I docume
 followed through process. In this documentation, I have tried to address the issues I faced in the process.These include lack of proper and 
 updated documentation of the implementation.
 
+### The CVC4 architecture
+Here is a rough attempt at portraying the CVC4 architecture based on discussion notes from the developers.
+This might be useful once you start navigating the codebase following this flow of control. Although, in my case I did not need to meddle with
+the Propositional Engine and the SAT Solver (yet!).
+<div align="center"><img src="https://i.ibb.co/6NkhXhC/Hnet-com-image-1.jpg" width="500" height="650" alt="CVC4 Architecture Diagram"></div>
+
 ## Getting Started
 All commands in this document have been ran on my ```Ubuntu 18.04 LTS``` system. To my understanding, this should work in
 a similar fashion in ```Ubuntu 16.04+ / Debian 8.0+``` systems. You may want to adapt these to your system specific equivalents if need be.
@@ -65,19 +71,136 @@ cd ..
 make
 ```
 
+The ```README.WHATS-NEXT``` file in the ```src/theory/trigono``` directory is a very good insight into the components of a theory.
 ## Integrating the Theory
 Once you have generated the theory files in the previous steps, you need to include these into the project build.
-
+<br>To do this you will have to make the following additions:
+- ```src/CMakeLists.txt```
+```c++
+libcvc4_add_sources(
+.......
+theory/trigono/theory_trigono.cpp                     // All theory source files to the src cmake list
+theory/trigono/theory_trigono.h
+theory/trigono/theory_trigono_rewriter.cpp
+theory/trigono/theory_trigono_rewriter.h
+theory/trigono/theory_trigono_type_rules.h
+)
+.......
+set(KINDS_FILES
+  ......
+  ${PROJECT_SOURCE_DIR}/src/theory/quantifiers/kinds
+  ${PROJECT_SOURCE_DIR}/src/theory/trigono/kinds)      // Add the theory kinds file to the src cmake list
+........
+```
+-  ```src/options/CMakeLists.txt```
+```c++
+set(options_toml_files
+   ......
+   uf_options.toml
+   trigono_options.toml                                // Add Theory options file to the options make list
+   )
+```
+   
 ## Registering the Theory
 
 
 ## Taking Input
-So, even if you have been able to just embed the theory structure and are now able to build the project.
+So, even if you have been able to just embed the theory structure and are now able to build the project.<br>
+We will look at how to support ```smtlib2``` for input.
 
-### Lexer
-Firstly, you need to enable the lexer with the lexemes you need as a part of your new theory.
 ### Parser
+For the parser to correctly pattern match the rules and later semantically evaluate the expression, we must add relevant
+markers for the new theory.
 
+- src/parser/smt2/smt2.cpp
+```c++
+// This function is called when the Trigonometric theory is enabled.
+// It adds all the operators in the theory to be taken into cognizance while parsing through the rules.
+void Smt2::addTrigonoOperators()   
+{            
+  addOperator(api::TRIG_SINE, "t_sin");
+  addOperator(api::TRIG_COSINE, "t_cos");
+  .........
+  addOperator(api::TRIG_ARCSECANT, "t_arcsec");
+  addOperator(api::TRIG_ARCCOTANGENT, "t_arccot");
+}
+
+// Checks if theory enabled and invokes the corresponding function
+if (d_logic.isTheoryEnabled(theory::THEORY_TRIGONO)) { 
+    defineVar("trigono.pi", d_solver->mkTerm(api::PI));
+    addTrigonoOperators();
+  }
+```
+- src/parser/smt2/smt2.h
+```c++
+  void addTrigonoOperators(); // Add the function declaration in the header.
+```
+
+### CVC4 API
+
+- ```src/api/cvc4cpp.cpp```
+```c++
+const static std::unordered_map<Kind, CVC4::Kind, KindHashFunction> s_kinds{
+    ..........
+    /* Trigono ---------------------------------------------------------- */
+    {TRIG_SINE, CVC4::Kind::TRIG_SINE},
+    {TRIG_COSINE, CVC4::Kind::TRIG_COSINE},
+    {TRIG_TANGENT, CVC4::Kind::TRIG_TANGENT},
+    .........
+    {TRIG_ARCSECANT, CVC4::Kind::TRIG_ARCSECANT},
+    {TRIG_ARCCOTANGENT, CVC4::Kind::TRIG_ARCCOTANGENT},
+    ..........
+    
+const static std::unordered_map<CVC4::Kind, Kind, CVC4::kind::KindHashFunction>
+    ........
+    /* Trigono ------------------------------------------------------ */
+    {CVC4::Kind::TRIG_SINE, TRIG_SINE},
+    {CVC4::Kind::TRIG_COSINE, TRIG_COSINE},
+    {CVC4::Kind::TRIG_TANGENT, TRIG_TANGENT},
+    .......
+    {CVC4::Kind::TRIG_ARCSECANT, TRIG_ARCSECANT},
+    {CVC4::Kind::TRIG_ARCCOTANGENT, TRIG_ARCCOTANGENT},    
+    ........
+```
+- ```src/api/cvc4cppkind.h```
+```c++
+ /* Trigono  -------------------------------------------------------------- */
+
+  /**
+  * Sine.
+  * Parameters: 1
+  *   -[1]: Term of sort Integer, Real
+  * Create with:
+  *   mkTerm(Kind kind, Term child)
+  */
+  TRIG_SINE,
+  /**
+   * Cosine.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_COSINE,
+  ........                                            // Add all kinds associated with the theory
+    /**
+   * Arc sine.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCSINE,
+  /**
+   * Arc cosine.
+   * Parameters: 1
+   *   -[1]: Term of sort Integer, Real
+   * Create with:
+   *   mkTerm(Kind kind, Term child)
+   */
+  TRIG_ARCCOSINE,
+  ........
+```
 ## Giving Output
 
 ### Printer
