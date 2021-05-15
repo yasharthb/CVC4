@@ -30,6 +30,7 @@ CVC4 now uses ```Antlr``` as the parser generator, so to fetch and build Antlr f
 ```bash
 ./contrib/get-antlr-3.4  # Fetches and builds Antlr from source, based on system specs
 ```
+There...There! Now you are all set to add some theories to CVC4.
 
 ## Generating Theory Structure
 There are two kinds of theory additions you might do into CVC4: 
@@ -131,7 +132,7 @@ if (d_logic.isTheoryEnabled(theory::THEORY_TRIGONO)) {
     addTrigonoOperators();
   }
 ```
-- src/parser/smt2/smt2.h
+- ```src/parser/smt2/smt2.h```
 ```c++
   void addTrigonoOperators(); // Add the function declaration in the header.
 ```
@@ -204,13 +205,74 @@ const static std::unordered_map<CVC4::Kind, Kind, CVC4::kind::KindHashFunction>
 ## Giving Output
 
 ### Printer
+Not a lot to be done in the printer part. Also, without these additions the solver would print the internal attributes as the default case -- so not 
+a mandatory step to start with.
 
+- ```src/printer/smt2/smt2_printer.cpp```
+```c++
+// Matches through a set of cases to enable printing formats specific to a particular Term Node Kind
+void Smt2Printer::toStream(std::ostream& out,TNode n, int toDepth, LetBinding* lbind) const{
+  .......
+  // trigono theory
+  case kind::TRIG_SINE:                           // One needs to enable specific print format for each Kind
+  case kind::TRIG_COSINE:
+  .......
+  case kind::TRIG_ARCCOTANGENT:
+  case kind::TRIG_PI:
+  out << smtKindString(k, d_variant) << " ";      // Call to the function below to print the token associated
+  .......
+  
+// Maps Term Kinds to tokens that should get printed onto the console 
+std::string Smt2Printer::smtKindString(Kind k, Variant v){
+  .......
+  //trigono theory
+  case kind::TRIG_SINE: return "t_sin";          // Console Tokens corresponding to the Kinds
+  case kind::TRIG_COSINE: return "t_cos";        // Generally kept same as the input tokens
+  .......
+  case kind::TRIG_ARCCOTANGENT: return "t_arccot";
+  case kind::TRIG_PI: return "t.pi";
+  .......
+```
 
-## Activating the Theory
+## Enabling the Theory
+So, while you have come along a long way into using your theory, there is an important step remaining before you may 
+just get the control to reach within your new theory. You need to be able to activate your theory through smt2 ```setlogic``` command
+for usage in the model. 
+
+For the Trigonometric theory, I have added triggers for enabling it wherever we find Non-Linear Arithmetic Transcendentals
+in the picture. You'll have to figure if your triggers need a separate enabling flag or lie within a particular subset of
+another logic configuration.
 
 ## The Theory Logic
 
 ### Kinds
+The ```src/theory/built-in/kinds``` file has a fairly well documented a ```kind``` file and what all need to
+be incorporated in it. I'll skip the explanation for now. You should realize what are the constants, functions and operators in your theory and should write them down in a 
+manner analogous to the other theories like ```arith``` and ```sets```. In my case, ```arith``` was particularly very helpful.
+
+```text
+properties stable-infinite                           # This can be understood from src/theory/built-in/kinds
+properties check
+
+# Theory content goes here.
+
+# types...
+typerule TSINE "SimpleTypeRule<RReal, AReal>"         # You need a typerule for every type you define here
+typerule TCOSINE "SimpleTypeRule<RReal, AReal>"       # In my case, I borrowed the builtin Generic Type Rules
+.......
+typerule TARCSECANT "SimpleTypeRule<RReal, AReal>"
+typerule TARCCOTANGENT "SimpleTypeRule<RReal, AReal>"
+
+# operators...
+operator TSINE 1 "sine"                               # Each operator of the theory is declared here 
+operator TCOSINE 1 "cosine"                           # Also, has a number of args & internal name associated
+.........
+operator TARCSECANT 1 "arc secant"
+operator TARCCOTANGENT 1 "arc cotangent"
+nullaryoperator TRIG_PI "pi"
+
+endtheory
+```
 
 ### Theory
 The successful addition of the core logic for the theory is a tricky task. Depending on what the needs of the theory are, 
