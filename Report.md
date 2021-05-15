@@ -1,5 +1,7 @@
 # CS253A: Advanced Track Project
 
+## Yasharth Bajpai (170822)
+
 ## Objective 
     Add a new theory/decision procedure for Trigonometric functions in CVC4.
 ## Tasks Completed
