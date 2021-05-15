@@ -44,7 +44,11 @@ The theory templates provided in the repository are incompatible with the curren
 Here, I have provided slightly modified templates for the CVC4 theory addition that one might want to use.<br>
 To generate theory structure files use the following commands:
 ```bash
-./contrib/new-theory trigono  # Use your theory name instead
+./contrib/new-theory-updated trigono  # Use your theory name instead
+
+                 # or
+
+./contrib/new-theory trigono  # You may use the original skeletons; however, they'll not build before debug
 ```
 On running the above command, you'll may expect an output on the lines of:
 ```bash
@@ -66,44 +70,121 @@ Creating src/options/trigono_options.toml...
 ```
 Now, once these files have been added, build the project, configure and make.
 ```bash
-cd <build_dir>   # default is ./build
-cd ..
 ./configure   #with any other options, like using a 'debug' configuration and specifying antlr.
 make
 ```
 
 The ```README.WHATS-NEXT``` file in the ```src/theory/trigono``` directory is a very good insight into the components of a theory.
-## Integrating the Theory
+## Incorporating the Theory
 Once you have generated the theory files in the previous steps, you need to include these into the project build.
 <br>To do this you will have to make the following additions:
 - ```src/CMakeLists.txt```
 ```c++
+// All theory source files to the src cmake list
 libcvc4_add_sources(
 .......
-theory/trigono/theory_trigono.cpp                     // All theory source files to the src cmake list
+theory/trigono/theory_trigono.cpp                     
 theory/trigono/theory_trigono.h
 theory/trigono/theory_trigono_rewriter.cpp
 theory/trigono/theory_trigono_rewriter.h
 theory/trigono/theory_trigono_type_rules.h
 )
 .......
+
+// Add the theory kinds file to the src cmake list set
 set(KINDS_FILES
   ......
   ${PROJECT_SOURCE_DIR}/src/theory/quantifiers/kinds
-  ${PROJECT_SOURCE_DIR}/src/theory/trigono/kinds)      // Add the theory kinds file to the src cmake list
+  ${PROJECT_SOURCE_DIR}/src/theory/trigono/kinds)      
 ........
 ```
--  ```src/options/CMakeLists.txt```
+-  `src/options/CMakeLists.txt`
 ```c++
+// Add Theory options file to the options make list set
 set(options_toml_files
    ......
    uf_options.toml
-   trigono_options.toml                                // Add Theory options file to the options make list
+   trigono_options.toml                                
    )
 ```
-   
-## Registering the Theory
+At this point, you might want to build the project and see if it compiles alright. It is recommended that you make this
+happen before proceeding further.
 
+## Registering the Theory
+The new theory needs to be registered with the Theory Engine so that it might start sending assertions and notifying 
+all associated terms to the theory. This can be done through a couple of additions.
+
+- `src/theory/theory_engine.cpp`
+```c++
+// Added the new theory to the MACRO for executing statements for all theories
+#define CVC4_FOR_EACH_THEORY                                   \
+.....
+CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_ARITH)     \
+CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_TRIGONO)   \
+CVC4_FOR_EACH_THEORY_STATEMENT(CVC4::theory::THEORY_FP)        \
+.....
+```
+- ```src/theory/theory_id.cpp```
+```c++
+// Associates a THEORY_ID with its representational name. Default value being: UNKNOWN_THEORY
+std::ostream& operator<<(std::ostream& out, TheoryId theoryId)
+    ........
+    case THEORY_ARITH: out << "THEORY_ARITH"; break;
+    case THEORY_TRIGONO: out << "THEORY_TRIGONO"; break;
+    case THEORY_BV: out << "THEORY_BV"; break;
+    ........
+    
+// Associates a THEORY_ID with its representational name in Stats Prefixes. Default value being: unknown   
+std::string getStatsPrefix(TheoryId theoryId)
+    .......
+    case THEORY_ARITH: return "theory::arith"; break;
+    case THEORY_TRIGONO: return "theory::trigono"; break;
+    case THEORY_BV: return "theory::bv"; break;
+    .......
+```
+- `src/theory/inference_id.h`: Optional for now. Used when creating lemmas/raising conflicts while checking consistency.
+```c++
+// Define ENUMS for inferences that lead to new lemmas/ raising conflicts
+enum class InferenceId
+  ........
+  // ---------------------------------- trigono theory
+  TRIGONO_EQ,
+  TROGONO_NOT_EQ,
+  TRIGONO_OUT_OF_BOUND,
+  // ---------------------------------- end trigono theory
+  ........
+```
+## Enabling the Theory
+So, while you have come along a long way into using your theory, there is an important step remaining before you may
+just get the control to reach within your new theory. You need to be able to activate your theory through smt2 ```setlogic``` command
+for usage in the model.
+
+For the Trigonometric theory, I have added triggers for enabling it wherever we find Non-Linear Arithmetic Transcendentals
+in the picture. You'll have to figure if your triggers need a separate enabling flag or lie within a particular subset of
+another logic configuration.
+
+- `src/theory/logic_info.cpp`
+```c++
+// Creates a mapping in the logicInfo object corresponding to all theories enabled based on the logic string.
+void LogicInfo::setLogicString(std::string logicString)
+        if (*p == 'T')
+        {
+          arithTranscendentals();
+          enableTheory(THEORY_TRIGONO);
+          p += 1;
+        }
+      } else if(!strncmp(p, "NIRA", 4)) {
+      ...........
+        if (*p == 'T')
+        {
+          arithTranscendentals();
+          enableTheory(THEORY_TRIGONO);
+          p += 1;
+        }
+      }
+```
+
+- `src/smt/set_defaults.cpp`: If you need your Theory to be default in some scenarios(due to dependencies), make edits to this file.
 
 ## Taking Input
 So, even if you have been able to just embed the theory structure and are now able to build the project.<br>
@@ -141,6 +222,7 @@ if (d_logic.isTheoryEnabled(theory::THEORY_TRIGONO)) {
 
 - ```src/api/cvc4cpp.cpp```
 ```c++
+// Create a mapping from external kind to Internal kind in the API
 const static std::unordered_map<Kind, CVC4::Kind, KindHashFunction> s_kinds{
     ..........
     /* Trigono ---------------------------------------------------------- */
@@ -151,7 +233,8 @@ const static std::unordered_map<Kind, CVC4::Kind, KindHashFunction> s_kinds{
     {TRIG_ARCSECANT, CVC4::Kind::TRIG_ARCSECANT},
     {TRIG_ARCCOTANGENT, CVC4::Kind::TRIG_ARCCOTANGENT},
     ..........
-    
+
+// Create a mapping from internal kinds to External kinds in the API
 const static std::unordered_map<CVC4::Kind, Kind, CVC4::kind::KindHashFunction>
     ........
     /* Trigono ------------------------------------------------------ */
@@ -183,7 +266,7 @@ const static std::unordered_map<CVC4::Kind, Kind, CVC4::kind::KindHashFunction>
    *   mkTerm(Kind kind, Term child)
    */
   TRIG_COSINE,
-  ........                                            // Add all kinds associated with the theory
+  ........                                  // Add all kinds associated with the theory, as ENUMS in the file
     /**
    * Arc sine.
    * Parameters: 1
@@ -230,18 +313,9 @@ std::string Smt2Printer::smtKindString(Kind k, Variant v){
   case kind::TRIG_COSINE: return "t_cos";        // Generally kept same as the input tokens
   .......
   case kind::TRIG_ARCCOTANGENT: return "t_arccot";
-  case kind::TRIG_PI: return "t.pi";
+  case kind::TRIG_PI: return "trig.pi";
   .......
 ```
-
-## Enabling the Theory
-So, while you have come along a long way into using your theory, there is an important step remaining before you may 
-just get the control to reach within your new theory. You need to be able to activate your theory through smt2 ```setlogic``` command
-for usage in the model. 
-
-For the Trigonometric theory, I have added triggers for enabling it wherever we find Non-Linear Arithmetic Transcendentals
-in the picture. You'll have to figure if your triggers need a separate enabling flag or lie within a particular subset of
-another logic configuration.
 
 ## The Theory Logic
 
@@ -276,11 +350,58 @@ endtheory
 
 ### Theory
 The successful addition of the core logic for the theory is a tricky task. Depending on what the needs of the theory are, 
-one might need to implement various virtual functions belonging to ```Theory``` Class which is has 
+one might need to implement various virtual functions belonging to `Theory` Class. This step is very specific to the theory
+being implemented. You may have a look at my implementations of the following functions **[WIP]**:
+
+- `finishInit()`: Hook for kinds to be set as an unevaluated kind inside the theory where it is used, making it easy to check for illegal
+  eliminations via TheoryModel.<br><br>
+- `check()`: checks the current assigment's consistency. The most important check() invariant is that when check is 
+  called with full effort and the current assignment is unsatisfiable it must either return a conflict or force the solver to split by adding a lemma.<br><br>
+- `preNotifyFact()`: Hook usually used to check successful addition of the fact to the equality engine before notification. <br><br>
+- `notifyFact()`: Informs the theory of a fact of the theory and expects to conflict raised if there is some error at this stage.<br><br>
+- `needsEqualityEngine()`:  Checks whether the theory needs an Equality Engine and returns a boolean values.<br><br>
+- `needsCheckLastEffort()`: Checks whether the theory needs a final high effort Check before the satisfiability is returned.<br><br>
+- `propagate()*`: - propagate new literal assignments in the current context. Note that it can only propagate theory atoms, or
+  negations of atoms, that already have a literal in the SAT solver. An invariant of the function is that it should never
+  propagate a literal that is already assigned to true or false.
+### Handling the assertions
+Once you receive a fact from `d_fact` queue of your theory (Use the `get()` function for this), you need to establish its consistency. If the assignment
+is invalid you must raise a conflict at `full effort`, else send an appropriate lemma that is asserted iteratively so to converge to 
+an overall satisfiable solution. 
+
+In my case, we are currently exploring options to assert back lemmas in form of domain specific value assignments for the Trigonometric assertions
+that have been sent to the Theory. These assertions choose a set a of assignments consistent with the assertion queue,
+and equality constraints in the equality engine. These constraints shall then be sent back to the SMT engine for 
+satisfiability check. This happens in an iterative fashion till you arrive at a conflict making the check
+unsatisfiable or till you have values that satify the assertions and *lastCheckEfforts* have been invoked. This is for the
+SMT engine to decide and give back to the propositional engine.
+
+For the Trigonometric theory, we shall be working on sophisticated procedures which can make this iterative process
+converge faster needing lesser new lemmas. This can be done by keeping in consideration all facts in the current context
+while deciding new assignments. These might include any previous assignments which were not satisfiable in the bigger picture.
 
 ### Rewriter
+A Theory Rewriter is used to rewrite a node into the normal/canonical form of the theory in consideration. Depending on
+the needs of the theory, you might require rewrites based.
+
+For the Trigonometric theory, no adapted implementations were required. The script generated implementations of the of 
+the `theory/trigono/theory_trigono_rewriter.h` by the `new-thoery-updated` script were sufficient to handle dummy
+rewrites.
 
 ### Type Rules
+Every type defined in the kinds file of a theory needs to be associate to a type rule, which guides the functionalities
+of the type and provides implementations for operations that might be performed on/or using it.
+
+For the implementation of Trigonometric functions, I used the in built Generic SimpleTypeRule from the `expr/type_checker_util.h`
+with argument and return types specified.
+```text
+typerule TSINE "SimpleTypeRule<RReal, AReal>"           # <Return type Real, Argument type Real> 
+```
+You may define theory specific Type Rules for the needs of your theory if any of the builtin type rules in
+`expr/type_checker_util.h` and `theory/builtin/theory_builtin_type_rules.h` do not match your needs.
+<br><br>
+
+> At the end of all implementation mentioned above, you get a new theory - **a "complete" (though slightly unsound) new theory!**
 
 ## Resources
 Some of these resources were very helpful in understanding the working of CVC4 as well as adding new functionalities into
@@ -289,3 +410,4 @@ it.
 - [A tour of the CVC4 Solver](https://www.cs.utexas.edu/users/hunt/FMCAD/FMCAD14/slides/cvc4-tutorial-fmcad.pdf)
 - [CVC4 Architecture Notes(Hand written)](https://raw.githubusercontent.com/wiki/cvc5/cvc5/doc/cvc4-architecture-notes.pdf)
 - [How to write a theory in CVC4 (old instructions)](http://cvc4.cs.stanford.edu/wiki/How_to_write_a_theory_in_CVC4_(old_instructions))
+- [CVC4 API Docs (Excellent to learn about kinds)](https://cvc5.github.io/docs/cpp/kind.html)

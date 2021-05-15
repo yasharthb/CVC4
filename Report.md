@@ -49,11 +49,10 @@ new function names for each function.
 
 ## Goals: Where to ?
 
-I wish to complete the decision procedure to a level of sophistication that we may be able to publish this as 
-a research paper, before I graduate in December '21.<br>
-This was my aspiration while opting for the project, if nothing more, it feels even more doable and fun now.
+> I wish to complete the decision procedure to a level of sophistication that we may be able to publish this as 
+a research paper, before I graduate in December '21. This was my aspiration while opting for the project, if nothing more, it feels even more doable and fun now.
 
 ## Acknowledgement
-I'd like to thank both my mentors [Sujit Muduli](https://www.cse.iitk.ac.in/users/smuduli/) and [Prof. Subhajit Roy](https://www.cse.iitk.ac.in/users/subhajit/) for their support with me throughout the project. 
-Without them explaining the theoretical aspects to me, it would have been impossible for me to execute this project 
-without the domain acquaintance. Sujit also helped me with his insights from his CVC4 experience.
+> I'd like to thank both my mentors [Sujit Muduli](https://www.cse.iitk.ac.in/users/smuduli/) and [Prof. Subhajit Roy](https://www.cse.iitk.ac.in/users/subhajit/) for their support with me throughout the project. 
+> Without them explaining the theoretical aspects to me, it would have been impossible for me to execute this project 
+> without the domain acquaintance. Sujit also helped me with his insights from his CVC4 experience.
