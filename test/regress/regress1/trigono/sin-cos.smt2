@@ -1,0 +1,6 @@
+(set-logic QF_UFNRAT)
+(declare-fun x () Real)
+(declare-fun y () Real)
+(assert (> 0.5 (t_sin x)))
+(assert ( < (t_cos x) (t_cos y)))
+(check-sat)
